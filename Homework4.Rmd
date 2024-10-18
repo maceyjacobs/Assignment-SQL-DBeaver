@@ -1,0 +1,27 @@
+---
+title: "Homework 4"
+author: "Macey Jacobs"
+date: "2024-10-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(DBI)
+library(duckdb)
+library(dplyr)
+```
+```{r}
+con <- dbConnect(duckdb(), "Downloads/flights.duckdb", read_only = TRUE)
+```
+```{r}
+dbIsValid(con)
+```
+```{sql, connection=con}
+SELECT airline, AVG(temperature) AS mean_temperature
+FROM flights
+GROUP BY airline;
+```
