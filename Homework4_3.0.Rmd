@@ -1,0 +1,60 @@
+---
+title: "Homework 4"
+author: "Macey Jacobs"
+date: "2024-10-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### Loading packages
+```{r}
+library(tidyverse)
+library(DBI)
+library(duckdb)
+library(dplyr)
+```
+### Connecting to dataset
+```{r}
+con <- dbConnect(duckdb(), "flights.duckdb", read_only = TRUE)
+```
+### looking at tables
+```{r}
+dbIsValid(con)
+tables <- dbListTables(con)
+print(tables)
+```
+### looking at columns in tables
+```{r}
+airline_columns <- dbListFields(con, "airlines")
+airport_columns <- dbListFields(con, "airports")
+flights_columns <- dbListFields(con, "flights")
+planes_columns <- dbListFields(con, "planes")
+weather_columns <- dbListFields(con, "weather")
+print(airline_columns)
+print(airport_columns)
+print(flights_columns)
+print(planes_columns)
+print(weather_columns)
+```
+## 1. What is the mean temperature for flights from each airport?
+```{sql, connection=con}
+SELECT w.origin AS airport, AVG(w.temp) AS mean_temperature
+FROM weather as w
+GROUP BY w.origin;
+```
+## 2. What is the average number of flights from each airport per day in January?
+```{sql, connection=con}
+SELECT f.origin AS airport, COUNT(*) / 31.0 AS avg-flights-per-day-jan
+FROM flights f
+WHERE f.month = 1
+GROUP BY f.origin;
+```
+## 3. What are the top destinations for each airport?
+```{sql, connection=con}
+SELECT f.origin AS airport, f.dest AS destination, COUNT(*) AS flight_count
+FROM flights AS f
+GROUP BY f.origin, f.dest
+ORDER BY f.origin, flight_count DESC
+```
